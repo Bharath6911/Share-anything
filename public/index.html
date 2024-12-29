@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Real-Time Text Sharing</title>
+  <link rel="stylesheet" href="css.css">
+</head>
+<body>
+  <h1>Real-Time Text Sharing</h1>
+
+  <form id="textForm">
+    <input type="textarea" id="textInput" placeholder="Type your text here..." required>
+    <button type="submit">Share</button>
+  </form>
+
+  <section id="shared-content">
+    <h2>Shared Texts</h2>
+    <ul id="sharedTexts">
+      <!-- Shared texts will appear here dynamically -->
+    </ul>
+  </section>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="js.js"></script>
+</body>
+</html>
