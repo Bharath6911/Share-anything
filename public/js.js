@@ -1,4 +1,4 @@
-const socket = io(); // Connect to the WebSocket server
+const socket = io('https://share-anything.onrender.com');// Connect to the WebSocket server
 
 // Handle form submission
 const form = document.getElementById('textForm');
