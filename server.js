@@ -11,8 +11,8 @@ const PORT = 3000;
 
 // Store shared texts
 let sharedTexts = []; // This will hold the shared texts
-const MAX_TEXTS = 20;
-const TEXT_EXPIRATION_TIME = 600000; // 10 minutes in milliseconds
+const MAX_TEXTS = 50;
+const TEXT_EXPIRATION_TIME = 1800000; // 15 minutes in milliseconds
 
 // Serve static files from the 'public' folder
 app.use(express.static(path.join(__dirname, 'public')));
