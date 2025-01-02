@@ -42,6 +42,8 @@ body {
   }
   
   li {
+    white-space: pre-wrap; /* Preserve whitespace and line breaks */
+    word-wrap: break-word;
     background: #f9f9f9;
     margin: 5px 0;
     padding: 10px;
