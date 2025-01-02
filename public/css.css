@@ -40,6 +40,7 @@ body {
     border: 2px solid #ddd;
     border-radius: 10px; /* Rounded corners */
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+    overflow: hidden; 
 }
 
 #shared-content h2 {
@@ -50,16 +51,19 @@ body {
 ul {
     list-style-type: none;
     padding: 0;
+    margin: 0;
   }
   
  li {
     white-space: pre-wrap; /* Preserve whitespace and line breaks */
     word-wrap: break-word;
+    overflow: auto;  
     background: #ffffff;
     margin: 5px 0;
     padding: 10px;
     border: 1px solid #ddd;
     border-radius: 5px; /* Rounded corners for individual items */
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+    max-height: 100px; 
 }
   
