@@ -46,6 +46,18 @@ io.on('connection', (socket) => {
     }, TEXT_EXPIRATION_TIME);
   });
 
+ // Listen for text deletion
+  socket.on('deleteText', (data) => {
+    console.log(`Delete request received for text: ${data.text}`);
+
+    // Filter out the deleted text
+    sharedTexts = sharedTexts.filter((item) => item.text !== data.text);
+
+    // Notify all clients to remove the deleted text
+    io.emit('textDeleted', { text: data.text });
+  });
+
+
   socket.on('disconnect', () => {
     console.log('A user disconnected');
   });
