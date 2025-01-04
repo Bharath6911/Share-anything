@@ -1,8 +1,6 @@
-const socket = io('https://share-anything.onrender.com'); // Connect to WebSocket server
-
+const socket = io('https://share-anything.onrender.com'); // Connect to the server
 let currentRoom = null;
 
-// Handle room form submission
 const roomForm = document.getElementById('roomForm');
 roomForm.addEventListener('submit', (e) => {
   e.preventDefault();
@@ -11,13 +9,13 @@ roomForm.addEventListener('submit', (e) => {
 
   if (roomName) {
     currentRoom = roomName;
-    socket.emit('joinRoom', roomName); // Notify the server
+    socket.emit('joinRoom', roomName);
     alert(`You joined room: ${roomName}`);
-    document.getElementById('sharedTexts').innerHTML = ''; // Clear previous texts
+    document.getElementById('sharedTexts').innerHTML = '';
+    document.getElementById('sharedFiles').innerHTML = '';
   }
 });
 
-// Handle text form submission
 const textForm = document.getElementById('textForm');
 textForm.addEventListener('submit', (e) => {
   e.preventDefault();
@@ -30,73 +28,56 @@ textForm.addEventListener('submit', (e) => {
   }
 });
 
-// Create a list item with text, copy, and delete buttons
-function createListItem(text) {
-  const listItem = document.createElement('li');
+const fileForm = document.getElementById('fileForm');
+fileForm.addEventListener('submit', (e) => {
+  e.preventDefault();
+  const fileInput = document.getElementById('fileInput');
+  const file = fileInput.files[0];
 
-  const pre = document.createElement('pre');
-  pre.textContent = text;
+  if (file && currentRoom) {
+    const formData = new FormData();
+    formData.append('file', file);
 
-  const copyButton = document.createElement('button');
-  copyButton.textContent = 'Copy';
-  copyButton.style.marginLeft = '10px';
-  copyButton.addEventListener('click', () => {
-    navigator.clipboard.writeText(text).then(() => {
-      alert('Text copied to clipboard!');
-    });
-  });
-
-  const deleteButton = document.createElement('button');
-  deleteButton.textContent = 'Delete';
-  deleteButton.style.marginLeft = '10px';
-  deleteButton.addEventListener('click', () => {
-    if (currentRoom) {
-      socket.emit('deleteText', { text, roomName: currentRoom });
-    }
-  });
-
-  listItem.appendChild(pre);
-  listItem.appendChild(copyButton);
-  listItem.appendChild(deleteButton);
-
-  return listItem;
-}
-
-// Add shared texts to the list
-function addSharedTexts(texts) {
-  const textList = document.getElementById('sharedTexts');
-  texts.forEach((item) => {
-    const listItem = createListItem(item.text);
-    textList.appendChild(listItem);
-  });
-}
-
-// Remove a specific text from the list
-function removeTextFromList(text) {
-  const textList = document.getElementById('sharedTexts');
-  const items = textList.querySelectorAll('li');
-
-  items.forEach((item) => {
-    const pre = item.querySelector('pre');
-    if (pre && pre.textContent === text) {
-      textList.removeChild(item);
-    }
-  });
-}
-
-// Socket event listeners
-socket.on('initialRoomTexts', (data) => addSharedTexts(data.texts));
-socket.on('textShared', (data) => {
-  const textList = document.getElementById('sharedTexts');
-  const listItem = createListItem(data.text);
-  textList.appendChild(listItem);
+    fetch(`/upload?room=${currentRoom}`, {
+      method: 'POST',
+      body: formData,
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.success) {
+          alert('File shared successfully!');
+        } else {
+          alert('File upload failed.');
+        }
+      })
+      .catch((error) => console.error('Error uploading file:', error));
+  }
 });
-socket.on('textDeleted', (data) => removeTextFromList(data.text));
-socket.on('expiredTextRemoved', (data) => removeTextFromList(data.text));
 
-// Listen for room members update
-socket.on('roomMembers', (data) => {
-  const { room, members } = data;
-  console.log(`Room: ${room}, Members: ${members}`);
-  alert(`Room: ${room}\nMembers online: ${members}`);
+// Update UI with shared texts
+socket.on('initialRoomData', ({ texts, files }) => {
+  addSharedTexts(texts);
+  addSharedFiles(files);
 });
+
+socket.on('textShared', ({ text }) => {
+  addSharedTexts([{ text }]);
+});
+
+socket.on('fileShared', (file) => {
+  addSharedFiles([file]);
+});
+
+// Functions for rendering files
+function addSharedFiles(files) {
+  const fileList = document.getElementById('sharedFiles');
+  files.forEach(({ fileName, filePath }) => {
+    const listItem = document.createElement('li');
+    const link = document.createElement('a');
+    link.href = filePath;
+    link.textContent = fileName;
+    link.target = '_blank';
+    listItem.appendChild(link);
+    fileList.appendChild(listItem);
+  });
+}
