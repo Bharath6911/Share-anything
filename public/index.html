@@ -3,27 +3,36 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Real-Time Text Sharing</title>
+  <title>Real-Time Sharing</title>
   <link rel="stylesheet" href="css.css">
 </head>
 <body>
-  <h1>Real-Time Text Sharing</h1>
+  <h1>Real-Time Sharing</h1>
 
-<form id="roomForm">
-  <input type="text" id="roomInput" placeholder="Enter room name..." required />
-  <button type="submit">Join Room</button>
-</form>
+  <form id="roomForm">
+    <input type="text" id="roomInput" placeholder="Enter room name..." required>
+    <button type="submit">Join Room</button>
+  </form>
 
-  
   <form id="textForm">
-     <textarea id="textInput" placeholder="Type your text here..." required></textarea>
-    <button type="submit">Share</button>
+    <textarea id="textInput" placeholder="Type your text here..." required></textarea>
+    <button type="submit">Share Text</button>
+  </form>
+
+  <form id="fileForm">
+    <input type="file" id="fileInput" accept="image/*,video/*" required>
+    <button type="submit">Share File</button>
   </form>
 
   <section id="shared-content">
     <h2>Shared Texts</h2>
     <ul id="sharedTexts">
       <!-- Shared texts will appear here dynamically -->
+    </ul>
+
+    <h2>Shared Files</h2>
+    <ul id="sharedFiles">
+      <!-- Shared files will appear here dynamically -->
     </ul>
   </section>
 
