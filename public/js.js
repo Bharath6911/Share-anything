@@ -23,6 +23,10 @@ function createListItem(text) {
   const pre = document.createElement('pre');
   pre.textContent = text;
 
+  const copyButton = document.createElement('button');
+  copyButton.textContent = 'Copy';
+  copyButton.style.marginLeft = '10px';
+  
   const deleteButton = document.createElement('button');
   deleteButton.textContent = 'Delete';
   deleteButton.style.marginLeft = '10px';
@@ -33,6 +37,7 @@ function createListItem(text) {
   });
 
   listItem.appendChild(pre);
+  listItem.appendChild(copyButton);
   listItem.appendChild(deleteButton);
   return listItem;
 }
@@ -52,6 +57,15 @@ socket.on('textShared', (data) => {
   const listItem = createListItem(data.text);
   textList.appendChild(listItem);
 });
+
+ copyButton.addEventListener('click', () => {
+    navigator.clipboard.writeText(text).then(() => {
+      alert('Text copied to clipboard!');
+    }).catch((err) => {
+      console.error('Failed to copy text: ', err);
+    });
+  });
+
 
 // Listen for deleted texts and remove them from the list
 socket.on('textDeleted', (data) => {
