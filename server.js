@@ -9,16 +9,13 @@ const io = socketIo(server);
 
 const PORT = 3000;
 
-// Store shared texts and room information
-let sharedTexts = []; // For global sharing
+// Store room-based shared texts and expiration times
+const rooms = {}; // { roomName: { texts: [...], members: [] } }
 const MAX_TEXTS = 50;
-const TEXT_EXPIRATION_TIME = 1800000; // 15 minutes
+const TEXT_EXPIRATION_TIME = 1800000; // 15 minutes in milliseconds
 
 // Serve static files from the 'public' folder
 app.use(express.static(path.join(__dirname, 'public')));
-
-// Keep track of users in rooms
-const rooms = {};
 
 io.on('connection', (socket) => {
   console.log('A user connected');
@@ -26,53 +23,68 @@ io.on('connection', (socket) => {
   // Handle room joining
   socket.on('joinRoom', (roomName) => {
     socket.join(roomName);
+
     if (!rooms[roomName]) {
-      rooms[roomName] = [];
+      rooms[roomName] = { texts: [], members: [] };
     }
 
-    rooms[roomName].push(socket.id);
+    rooms[roomName].members.push(socket.id);
     console.log(`User joined room: ${roomName}`);
 
-    // Notify the user of the room members
+    // Notify the user with current room texts
+    socket.emit('initialRoomTexts', { roomName, texts: rooms[roomName].texts });
+
+    // Notify room members of the updated member list
     io.to(roomName).emit('roomMembers', {
       room: roomName,
-      members: rooms[roomName].map((id) => id), // Replace with usernames if available
+      members: rooms[roomName].members.length,
     });
   });
 
   // Handle text sharing
   socket.on('shareText', ({ text, roomName }) => {
-    const newText = { text, timestamp: Date.now() };
+    if (roomName && rooms[roomName]) {
+      const newText = { text, timestamp: Date.now() };
+      rooms[roomName].texts.push(newText);
 
-    if (roomName) {
-      // Room-specific sharing
+      if (rooms[roomName].texts.length > MAX_TEXTS) {
+        rooms[roomName].texts.shift(); // Remove the oldest text
+      }
+
       io.to(roomName).emit('textShared', { text });
-    } else {
-      // Global sharing
-      sharedTexts.push(newText);
-      if (sharedTexts.length > MAX_TEXTS) sharedTexts.shift(); // Remove oldest text
-      io.emit('textShared', { text });
+
+      // Remove the text after the expiration time
+      setTimeout(() => {
+        rooms[roomName].texts = rooms[roomName].texts.filter(
+          (item) => Date.now() - item.timestamp < TEXT_EXPIRATION_TIME
+        );
+        io.to(roomName).emit('expiredTextRemoved', { text });
+      }, TEXT_EXPIRATION_TIME);
     }
   });
 
   // Handle text deletion
   socket.on('deleteText', ({ text, roomName }) => {
-    if (roomName) {
+    if (roomName && rooms[roomName]) {
+      rooms[roomName].texts = rooms[roomName].texts.filter(
+        (item) => item.text !== text
+      );
       io.to(roomName).emit('textDeleted', { text });
-    } else {
-      sharedTexts = sharedTexts.filter((item) => item.text !== text);
-      io.emit('textDeleted', { text });
     }
   });
 
-  // Notify on user disconnect
+  // Handle disconnect
   socket.on('disconnect', () => {
     console.log('A user disconnected');
-    for (const room in rooms) {
-      rooms[room] = rooms[room].filter((id) => id !== socket.id);
-      io.to(room).emit('roomMembers', {
-        room,
-        members: rooms[room],
+    for (const roomName in rooms) {
+      rooms[roomName].members = rooms[roomName].members.filter(
+        (id) => id !== socket.id
+      );
+
+      // Notify room members of the updated member list
+      io.to(roomName).emit('roomMembers', {
+        room: roomName,
+        members: rooms[roomName].members.length,
       });
     }
   });
