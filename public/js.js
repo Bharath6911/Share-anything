@@ -13,6 +13,7 @@ roomForm.addEventListener('submit', (e) => {
     currentRoom = roomName;
     socket.emit('joinRoom', roomName); // Notify the server
     alert(`You joined room: ${roomName}`);
+    document.getElementById('sharedTexts').innerHTML = ''; // Clear previous texts
   }
 });
 
@@ -23,13 +24,13 @@ textForm.addEventListener('submit', (e) => {
   const input = document.getElementById('textInput');
   const text = input.value.trim();
 
-  if (text) {
-    socket.emit('shareText', { text, roomName: currentRoom }); // Emit to server with room info
+  if (text && currentRoom) {
+    socket.emit('shareText', { text, roomName: currentRoom });
     input.value = '';
   }
 });
 
-// Add text to the shared list
+// Create a list item with text, copy, and delete buttons
 function createListItem(text) {
   const listItem = document.createElement('li');
 
@@ -49,7 +50,9 @@ function createListItem(text) {
   deleteButton.textContent = 'Delete';
   deleteButton.style.marginLeft = '10px';
   deleteButton.addEventListener('click', () => {
-    socket.emit('deleteText', { text, roomName: currentRoom });
+    if (currentRoom) {
+      socket.emit('deleteText', { text, roomName: currentRoom });
+    }
   });
 
   listItem.appendChild(pre);
@@ -59,29 +62,41 @@ function createListItem(text) {
   return listItem;
 }
 
-// Listen for shared texts
-socket.on('textShared', (data) => {
+// Add shared texts to the list
+function addSharedTexts(texts) {
   const textList = document.getElementById('sharedTexts');
-  const listItem = createListItem(data.text);
-  textList.appendChild(listItem);
-});
+  texts.forEach((item) => {
+    const listItem = createListItem(item.text);
+    textList.appendChild(listItem);
+  });
+}
 
-// Listen for deleted texts
-socket.on('textDeleted', (data) => {
+// Remove a specific text from the list
+function removeTextFromList(text) {
   const textList = document.getElementById('sharedTexts');
   const items = textList.querySelectorAll('li');
 
   items.forEach((item) => {
     const pre = item.querySelector('pre');
-    if (pre && pre.textContent === data.text) {
+    if (pre && pre.textContent === text) {
       textList.removeChild(item);
     }
   });
-});
+}
 
-// Listen for room members
+// Socket event listeners
+socket.on('initialRoomTexts', (data) => addSharedTexts(data.texts));
+socket.on('textShared', (data) => {
+  const textList = document.getElementById('sharedTexts');
+  const listItem = createListItem(data.text);
+  textList.appendChild(listItem);
+});
+socket.on('textDeleted', (data) => removeTextFromList(data.text));
+socket.on('expiredTextRemoved', (data) => removeTextFromList(data.text));
+
+// Listen for room members update
 socket.on('roomMembers', (data) => {
   const { room, members } = data;
   console.log(`Room: ${room}, Members: ${members}`);
-  alert(`Room: ${room}\nMembers: ${members.length}`);
+  alert(`Room: ${room}\nMembers online: ${members}`);
 });
