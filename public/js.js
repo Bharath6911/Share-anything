@@ -1,17 +1,34 @@
-const socket = io('https://share-anything.onrender.com'); // Connect to the WebSocket server
+const socket = io('https://share-anything.onrender.com'); // Connect to WebSocket server
+let currentRoom = ''; // Track the current room
 
-// Handle form submission
+// Handle room joining
+const roomForm = document.getElementById('roomForm');
+roomForm.addEventListener('submit', (e) => {
+  e.preventDefault();
+  const roomInput = document.getElementById('roomInput');
+  const roomName = roomInput.value.trim();
+
+  if (roomName) {
+    socket.emit('joinRoom', { room: roomName });
+    currentRoom = roomName;
+    alert(`Joined room: ${roomName}`);
+    roomInput.value = ''; // Clear room input
+    document.getElementById('sharedTexts').innerHTML = ''; // Clear existing texts
+  }
+});
+
+// Handle form submission for sharing text
 const form = document.getElementById('textForm');
 form.addEventListener('submit', (e) => {
   e.preventDefault();
   const input = document.getElementById('textInput');
   const text = input.value.trim();
 
-  if (text.length > 0) {
-    socket.emit('shareText', { text }); // Emit text to the server
+  if (text.length > 0 && currentRoom) {
+    socket.emit('shareText', { text, room: currentRoom }); // Emit text with room info
   }
 
-  input.value = ''; // Clear the input field
+  input.value = '';
 });
 
 // Create a list item with text, copy, and delete buttons
@@ -34,7 +51,7 @@ function createListItem(text) {
   deleteButton.textContent = 'Delete';
   deleteButton.style.marginLeft = '10px';
   deleteButton.addEventListener('click', () => {
-    socket.emit('deleteText', { text }); // Notify server to delete text
+    socket.emit('deleteText', { text, room: currentRoom }); // Emit delete with room info
   });
 
   listItem.appendChild(pre);
@@ -69,9 +86,11 @@ function removeTextFromList(text) {
 // Socket event listeners
 socket.on('initialSharedTexts', (data) => addSharedTexts(data.texts));
 socket.on('textShared', (data) => {
-  const textList = document.getElementById('sharedTexts');
-  const listItem = createListItem(data.text);
-  textList.appendChild(listItem);
+  if (currentRoom) {
+    const textList = document.getElementById('sharedTexts');
+    const listItem = createListItem(data.text);
+    textList.appendChild(listItem);
+  }
 });
 socket.on('textDeleted', (data) => removeTextFromList(data.text));
 socket.on('expiredTextRemoved', (data) => removeTextFromList(data.text));
