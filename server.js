@@ -9,8 +9,8 @@ const io = socketIo(server);
 
 const PORT = 3000;
 
-// Store shared texts
-let sharedTexts = []; // This will hold the shared texts
+// Store shared texts per room
+let rooms = {}; // Example structure: { roomName: [{ text, timestamp }] }
 const MAX_TEXTS = 50;
 const TEXT_EXPIRATION_TIME = 1800000; // 15 minutes in milliseconds
 
@@ -21,42 +21,56 @@ app.use(express.static(path.join(__dirname, 'public')));
 io.on('connection', (socket) => {
   console.log('A user connected');
 
-  // Send the current shared texts to the newly connected user
-  socket.emit('initialSharedTexts', { texts: sharedTexts });
+  // Join a room
+  socket.on('joinRoom', (data) => {
+    const room = data.room;
+    socket.join(room);
+    console.log(`User joined room: ${room}`);
+
+    // Initialize room if not exists
+    if (!rooms[room]) rooms[room] = [];
+
+    // Send existing texts in the room
+    socket.emit('initialSharedTexts', { texts: rooms[room] });
+  });
 
   // Listen for text sharing
   socket.on('shareText', (data) => {
-    console.log(`Text received: ${data.text}`);
+    const { text, room } = data;
+    console.log(`Text received in room ${room}: ${text}`);
 
-    // Store the shared text with its timestamp
-    const newText = { text: data.text, timestamp: Date.now() };
-    sharedTexts.push(newText);
+    const newText = { text, timestamp: Date.now() };
 
-    if (sharedTexts.length > MAX_TEXTS) {
-      sharedTexts.shift(); // Remove the oldest text
+    if (rooms[room]) {
+      rooms[room].push(newText);
+
+      // Limit number of texts per room
+      if (rooms[room].length > MAX_TEXTS) rooms[room].shift();
+
+      // Emit text to all clients in the room
+      io.to(room).emit('textShared', { text });
     }
 
-    // Emit the text to all connected clients
-    io.emit('textShared', { text: data.text });
-
-    // Remove texts older than 10 minutes after the timeout
+    // Remove expired texts
     setTimeout(() => {
-      sharedTexts = sharedTexts.filter(item => Date.now() - item.timestamp < TEXT_EXPIRATION_TIME);
-      io.emit('expiredTextRemoved', { text: data.text }); // Notify clients of expired text
+      if (rooms[room]) {
+        rooms[room] = rooms[room].filter(
+          (item) => Date.now() - item.timestamp < TEXT_EXPIRATION_TIME
+        );
+      }
     }, TEXT_EXPIRATION_TIME);
   });
 
- // Listen for text deletion
+  // Handle text deletion
   socket.on('deleteText', (data) => {
-    console.log(`Delete request received for text: ${data.text}`);
+    const { text, room } = data;
+    console.log(`Delete request for text "${text}" in room: ${room}`);
 
-    // Filter out the deleted text
-    sharedTexts = sharedTexts.filter((item) => item.text !== data.text);
-
-    // Notify all clients to remove the deleted text
-    io.emit('textDeleted', { text: data.text });
+    if (rooms[room]) {
+      rooms[room] = rooms[room].filter((item) => item.text !== text);
+      io.to(room).emit('textDeleted', { text });
+    }
   });
-
 
   socket.on('disconnect', () => {
     console.log('A user disconnected');
