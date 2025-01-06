@@ -41,6 +41,15 @@ io.on('connection', (socket) => {
     });
   });
 
+  socket.on('leaveRoom', (roomName) => {
+  socket.leave(roomName); // Remove the user from the room
+  console.log(`User left room: ${roomName}`);
+
+  // Notify other members of the room (optional)
+  const roomMembers = io.sockets.adapter.rooms.get(roomName) || new Set();
+  io.to(roomName).emit('roomMembers', { room: roomName, members: roomMembers.size });
+});
+
   // Handle text sharing
   socket.on('shareText', ({ text, roomName }) => {
     if (roomName && rooms[roomName]) {
