@@ -17,6 +17,19 @@ roomForm.addEventListener('submit', (e) => {
   }
 });
 
+// Handle exit room
+const exitRoomButton = document.getElementById('exitRoomButton');
+exitRoomButton.addEventListener('click', () => {
+  if (currentRoom) {
+    socket.emit('leaveRoom', currentRoom); // Notify the server about leaving the room
+    alert(`You left room: ${currentRoom}`);
+    currentRoom = null;
+    document.getElementById('sharedTexts').innerHTML = ''; // Clear the shared texts
+  } else {
+    alert('You are not in any room!');
+  }
+});
+
 // Handle text form submission
 const textForm = document.getElementById('textForm');
 textForm.addEventListener('submit', (e) => {
