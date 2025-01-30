@@ -1,69 +1,87 @@
 body {
-    font-family: Arial, sans-serif;
-    margin: 20px;
-    text-align: center;
-  }
-  
-  h1 {
-    color: #333;
-  }
-  
-  form {
-    margin-bottom: 20px;
-  }
-  
-  input {
-    padding: 10px;
-    width: 60%;
-    margin-right: 10px;
-  }
+  font-family: Arial, sans-serif;
+  margin: 20px;
+  text-align: center;
+}
 
-  button {
-    padding: 10px;
-    background-color: #007bff;
-    color: white;
-    border: none;
-    cursor: pointer;
-  }
-  
-  button:hover {
-    background-color: #0056b3;
-  }
-  
-  /* Shared Content Box */
+h1 {
+  color: #333;
+}
+
+form {
+  margin-bottom: 20px;
+}
+
+input[type="text"],
+input[type="file"] {
+  padding: 10px;
+  width: 60%;
+  margin-right: 10px;
+}
+
+button {
+  padding: 10px 15px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+button:hover {
+  background-color: #0056b3;
+}
+
+/* Shared Content Box */
 #shared-content {
-    text-align: left;
-    margin: 0 auto;
-    max-width: 600px;
-    background: #f1f1f1;
-    padding: 20px;
-    border: 2px solid #ddd;
-    border-radius: 10px; /* Rounded corners */
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow */
-    overflow: hidden; 
+  text-align: left;
+  margin: 0 auto;
+  max-width: 600px;
+  background: #f1f1f1;
+  padding: 20px;
+  border: 2px solid #ddd;
+  border-radius: 10px; /* Rounded corners */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+  overflow: hidden; 
 }
 
 #shared-content h2 {
-    margin-bottom: 15px;
-    text-align: center;
+  margin-bottom: 15px;
+  text-align: center;
 }
- 
+
 ul {
-    list-style-type: none;
-    padding: 0;
-    margin: 0;
-  }
-  
- li {
-    white-space: pre-wrap; /* Preserve whitespace and line breaks */
-    word-wrap: break-word;
-    overflow: auto;  
-    background: #ffffff;
-    margin: 5px 0;
-    padding: 10px;
-    border: 1px solid #ddd;
-    border-radius: 5px; /* Rounded corners for individual items */
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Subtle shadow */
-    max-height: 100px; 
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
 }
-  
+
+li {
+  white-space: pre-wrap; /* Preserve whitespace and line breaks */
+  word-wrap: break-word;
+  overflow: auto;
+  background: #ffffff;
+  margin: 5px 0;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 5px; /* Rounded corners for individual items */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+  max-height: 100px;
+  overflow-y: auto; /* Enable scrolling for long content */
+}
+
+ul li:hover {
+  background-color: #f9f9f9; /* Light hover effect */
+}
+
+@media screen and (max-width: 600px) {
+  input[type="text"],
+  input[type="file"] {
+    width: 80%; /* Increase input width on smaller screens */
+  }
+
+  button {
+    width: 100%; /* Full width buttons on small screens */
+    padding: 15px;
+  }
+}
