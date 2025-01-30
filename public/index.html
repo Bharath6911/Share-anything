@@ -25,6 +25,15 @@
     <ul id="sharedTexts">
       <!-- Shared texts will appear here dynamically -->
     </ul>
+  </section>
+
+  <form id="uploadForm">
+    <input type="file" id="fileInput" required>
+    <button type="submit">Upload</button>
+  </form>
+
+  <h2>Uploaded Files</h2>
+  <ul id="fileList"></ul>
 
   <script src="/socket.io/socket.io.js"></script>
   <script src="js.js"></script>
