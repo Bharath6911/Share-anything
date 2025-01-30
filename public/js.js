@@ -12,7 +12,7 @@ roomForm.addEventListener('submit', (e) => {
   if (roomName) {
     currentRoom = roomName;
     socket.emit('joinRoom', roomName); // Notify the server
-    alert(`You joined room: ${roomName}`);
+    document.getElementById('roomStatus').textContent = `You joined room: ${roomName}`;
     document.getElementById('sharedTexts').innerHTML = ''; // Clear previous texts
   }
 });
@@ -22,11 +22,11 @@ const exitRoomButton = document.getElementById('exitRoomButton');
 exitRoomButton.addEventListener('click', () => {
   if (currentRoom) {
     socket.emit('leaveRoom', currentRoom); // Notify the server about leaving the room
-    alert(`You left room: ${currentRoom}`);
+    document.getElementById('roomStatus').textContent = `You left room: ${currentRoom}`;
     currentRoom = null;
     document.getElementById('sharedTexts').innerHTML = ''; // Clear the shared texts
   } else {
-    alert('You are not in any room!');
+    document.getElementById('roomStatus').textContent = 'You are not in any room!';
   }
 });
 
@@ -110,8 +110,8 @@ socket.on('expiredTextRemoved', (data) => removeTextFromList(data.text));
 // Listen for room members update
 socket.on('roomMembers', (data) => {
   const { room, members } = data;
-  console.log(`Room: ${room}, Members: ${members}`);
-  alert(`Room: ${room}\nMembers online: ${members}`);
+  document.getElementById('roomStatus').textContent = `Room: ${room}`;
+  document.getElementById('memberCount').textContent = `Members online: ${members}`;
 });
 
 document.getElementById('uploadForm').addEventListener('submit', async (e) => {
