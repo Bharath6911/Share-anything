@@ -113,3 +113,55 @@ socket.on('roomMembers', (data) => {
   console.log(`Room: ${room}, Members: ${members}`);
   alert(`Room: ${room}\nMembers online: ${members}`);
 });
+
+document.getElementById('uploadForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const fileInput = document.getElementById('fileInput');
+  if (!fileInput.files.length) {
+    alert('Please select a file!');
+    return;
+  }
+
+  const formData = new FormData();
+  formData.append('file', fileInput.files[0]);
+
+  try {
+    const response = await fetch('/upload', {
+      method: 'POST',
+      body: formData
+    });
+
+    const result = await response.json();
+    if (response.ok) {
+      alert('✅ File uploaded successfully!');
+      loadFiles(); // Refresh file list
+    } else {
+      alert('❌ Upload failed: ' + result.error);
+    }
+  } catch (err) {
+    console.error('Upload error:', err);
+    alert('❌ Error uploading file');
+  }
+});
+
+// Function to load and display uploaded files
+async function loadFiles() {
+  const fileList = document.getElementById('fileList');
+  fileList.innerHTML = '';
+
+  try {
+    const response = await fetch('/files'); // Fetch file list from server
+    const files = await response.json();
+
+    files.forEach(file => {
+      const li = document.createElement('li');
+      li.innerHTML = `<a href="${file.url}" target="_blank">${file.filename}</a> (${file.fileType})`;
+      fileList.appendChild(li);
+    });
+  } catch (err) {
+    console.error('Error loading files:', err);
+  }
+}
+
+// Load files on page load
+window.onload = loadFiles;
