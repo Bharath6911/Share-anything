@@ -1,87 +1,247 @@
+:root {
+  --primary-color: #4361ee;
+  --secondary-color: #3f37c9;
+  --accent-color: #4895ef;
+  --background-color: #f8f9fa;
+  --text-color: #2b2d42;
+  --shadow-color: rgba(0, 0, 0, 0.3);  /* Darker and more intense shadow */
+  --border-radius: 15px;
+}
+
 body {
-  font-family: Arial, sans-serif;
-  margin: 20px;
-  text-align: center;
+  font-family: 'Poppins', sans-serif;
+  margin: 0;
+  padding: 2rem;
+  background: var(--background-color);
+  color: var(--text-color);
+  min-height: 100vh;
+  line-height: 1.6;
 }
 
 h1 {
-  color: #333;
+  color: var(--primary-color);
+  font-size: 2.8rem;
+  margin-bottom: 2rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  text-shadow: 3px 3px 10px rgba(0, 0, 0, 0.2); /* Stronger text shadow */
+  animation: fadeInDown 0.8s ease-out;
+}
+
+#roomInfo, form, #shared-content, #chat-container {
+  background: white;
+  border-radius: var(--border-radius);
+  box-shadow: 0 8px 20px var(--shadow-color), 0 2px 10px rgba(0, 0, 0, 0.1); /* Multi-layer shadows */
+  margin: 2rem auto;
+  padding: 1.5rem 2rem;
+  max-width: 800px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+#roomInfo {
+  animation: slideIn 0.6s ease-out;
 }
 
 form {
-  margin-bottom: 20px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
-input[type="text"],
-input[type="file"] {
-  padding: 10px;
-  width: 60%;
-  margin-right: 10px;
+form:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 30px var(--shadow-color), 0 4px 15px rgba(0, 0, 0, 0.1); /* More elevated shadow effect */
+}
+
+input[type="text"], input[type="file"], textarea {
+  width: 100%;
+  padding: 14px 20px;
+  margin: 8px 0;
+  border: 2px solid #e0e0e0;
+  border-radius: var(--border-radius);
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  background-color: #fafafa;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+}
+
+input[type="text"]:focus, textarea:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 15px rgba(67, 97, 238, 0.4); /* Glow effect on focus */
+  outline: none;
 }
 
 button {
-  padding: 10px 15px;
-  background-color: #007bff;
-  color: white;
+  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+  padding: 14px 30px;
+  border-radius: var(--border-radius);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1.2px;
+  transition: all 0.3s ease;
   border: none;
   cursor: pointer;
-  font-size: 16px;
+  box-shadow: 0 8px 20px var(--shadow-color), 0 2px 8px rgba(0, 0, 0, 0.1); /* Multi-layer shadow for buttons */
 }
 
 button:hover {
-  background-color: #0056b3;
+  transform: translateY(-2px);
+  box-shadow: 0 12px 30px var(--shadow-color), 0 4px 15px rgba(0, 0, 0, 0.2); /* More elevated shadow on hover */
 }
 
-/* Shared Content Box */
-#shared-content {
-  text-align: left;
-  margin: 0 auto;
+#sharedTexts li {
+  padding: 12px;
+  border-radius: var(--border-radius);
+  margin: 8px 0;
+  background: #f0f4ff;
+  transition: background-color 0.3s ease, transform 0.3s ease;
+  animation: fadeIn 0.5s ease-out;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* Light shadow for list items */
+}
+
+#sharedTexts li:hover {
+  transform: translateX(10px);
+  background: #e0eaff;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1); /* Highlight shadow on hover */
+}
+
+#chat-container {
+  background: white;
+  border-radius: var(--border-radius);
+  box-shadow: 0 8px 20px var(--shadow-color), 0 2px 10px rgba(0, 0, 0, 0.1); /* Multi-layer shadow */
+  padding: 1.5rem;
+  margin: 2rem auto;
   max-width: 600px;
+}
+
+#chat-box {
+  height: 300px;
+  overflow-y: auto;
+  padding: 1rem;
+  background: #fafafa;
+  border-radius: var(--border-radius);
+  margin-bottom: 1rem;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* Subtle shadow around chat box */
+}
+
+.message {
+  background: var(--primary-color);
+  color: white;
+  padding: 12px 18px;
+  border-radius: 20px;
+  margin: 8px 0;
+  max-width: 80%;
+  animation: slideInRight 0.3s ease-out;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1); /* Shadow around messages */
+}
+
+.message:hover {
+  transform: scale(1.03);
+}
+
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes scaleUp {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
   background: #f1f1f1;
-  padding: 20px;
-  border: 2px solid #ddd;
-  border-radius: 10px; /* Rounded corners */
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow */
-  overflow: hidden; 
 }
 
-#shared-content h2 {
-  margin-bottom: 15px;
-  text-align: center;
+::-webkit-scrollbar-thumb {
+  background: var(--primary-color);
+  border-radius: 4px;
 }
 
-ul {
-  list-style-type: none;
-  padding: 0;
-  margin: 0;
+::-webkit-scrollbar-thumb:hover {
+  background: var(--secondary-color);
 }
 
-li {
-  white-space: pre-wrap; /* Preserve whitespace and line breaks */
-  word-wrap: break-word;
-  overflow: auto;
-  background: #ffffff;
-  margin: 5px 0;
-  padding: 10px;
-  border: 1px solid #ddd;
-  border-radius: 5px; /* Rounded corners for individual items */
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Subtle shadow */
-  max-height: 100px;
-  overflow-y: auto; /* Enable scrolling for long content */
+#exitRoomButton {
+  background: linear-gradient(135deg, #ff4d4d, #c70039);
+  margin-left: 1rem;
+  transition: transform 0.3s ease;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* Shadow for exit button */
 }
 
-ul li:hover {
-  background-color: #f9f9f9; /* Light hover effect */
+#exitRoomButton:hover {
+  transform: scale(1.05);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2); /* Stronger shadow on hover */
 }
 
-@media screen and (max-width: 600px) {
-  input[type="text"],
-  input[type="file"] {
-    width: 80%; /* Increase input width on smaller screens */
+@media (max-width: 768px) {
+  body {
+    padding: 1rem;
+  }
+
+  form {
+    padding: 1.5rem;
   }
 
   button {
-    width: 100%; /* Full width buttons on small screens */
-    padding: 15px;
+    width: 100%;
+    margin-top: 10px;
+  }
+
+  #roomForm {
+    display: flex;
+    flex-direction: column;
+  }
+
+  #exitRoomButton {
+    margin-left: 0;
+    margin-top: 10px;
   }
 }

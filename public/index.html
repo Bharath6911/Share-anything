@@ -5,9 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Real-Time Sharing</title>
   <link rel="stylesheet" href="css.css">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
-  <h1>Real-Time Sharing</h1>
+  <center><h1>Real-Time Sharing</h1></center>
 
   <div id="roomInfo">
   <p id="roomStatus">Not in any room</p>
@@ -37,10 +39,19 @@
     <button type="submit">Upload</button>
   </form>
 
+  <section id="shared-content">
   <h2>Uploaded Files</h2>
   <ul id="fileList"></ul>
+  </section> 
 
   <script src="https://share-anything.onrender.com/socket.io/socket.io.js"></script>
-  <script src="js.js"></script>
+  <script src="js.js" defer></script>
+
+  <div id="chat-container">
+    <div id="chat-box"></div>
+    <input type="text" id="user-input" placeholder="Type your message here..." />
+    <button id="send-button">Send</button>
+  </div>
+  
 </body>
 </html>

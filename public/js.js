@@ -165,3 +165,36 @@ async function loadFiles() {
 
 // Load files on page load
 window.onload = loadFiles;
+
+document.getElementById('send-button').addEventListener('click', async () => {
+  const userInput = document.getElementById('user-input').value;
+  if (!userInput) return;
+
+  // Display user message
+  const chatBox = document.getElementById('chat-box');
+  const userMessageDiv = document.createElement('div');
+  userMessageDiv.textContent = `User: ${userInput}`;
+  chatBox.appendChild(userMessageDiv);
+
+  // Clear input field
+  document.getElementById('user-input').value = '';
+
+  // Send message to backend
+  try {
+      const response = await fetch('/api/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ message: userInput }),
+      });
+
+      const data = await response.json();
+      const aiMessageDiv = document.createElement('div');
+      aiMessageDiv.textContent = `AI: ${data.message}`;
+      chatBox.appendChild(aiMessageDiv);
+      
+      // Scroll to the bottom
+      chatBox.scrollTop = chatBox.scrollHeight;
+  } catch (error) {
+      console.error('Error:', error);
+  }
+});
