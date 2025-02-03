@@ -1,4 +1,50 @@
-const socket = io('https://share-anything.onrender.com'); // Connect to WebSocket server
+const socket = io('https://share-anything.onrender.com');{
+  reconnection: true,
+  reconnectionAttempts: 5,
+  reconnectionDelay: 3000
+})
+socket.on('connect_error', (err) => {
+  console.error('Connection Error:', err);
+  alert('Failed to connect to real-time server. Some features might not work.');
+});
+
+const purify = DOMPurify(window);
+function sanitizeInput(input) {
+  return purify.sanitize(input, { ALLOWED_TAGS: [] });
+}
+
+// Modify your text form submission handler to include sanitization
+const textForm = document.getElementById('textForm');
+textForm.addEventListener('submit', (e) => {
+  e.preventDefault();
+  const input = document.getElementById('textInput');
+  const text = sanitizeInput(input.value.trim()); // Sanitize input
+
+  if (text && currentRoom) {
+    socket.emit('shareText', { text, roomName: currentRoom });
+    input.value = '';
+  }
+});
+
+// Add file sharing WebSocket integration
+socket.on('fileShared', (data) => {
+  const fileList = document.getElementById('fileList');
+  const li = document.createElement('li');
+  li.innerHTML = `<a href="${data.url}" target="_blank">${data.filename}</a> (${data.fileType})`;
+  fileList.appendChild(li);
+});
+
+// Add this for proper cleanup when leaving the page
+window.addEventListener('beforeunload', () => {
+  if (currentRoom) {
+    socket.emit('leaveRoom', currentRoom);
+  }
+});
+
+
+
+
+
 
 let currentRoom = null;
 
