@@ -91,7 +91,7 @@ const handleFileUpload = async (e) => {
   formData.append('file', elements.fileInput.files[0]);
 
   try {
-    const response = await fetch('/upload', { method: 'POST', body: formData });
+    const response = await fetch('/uploads', { method: 'POST', body: formData });
     const result = await response.json();
     response.ok ? loadFiles() : alert(`Upload failed: ${result.error}`);
   } catch (err) {
