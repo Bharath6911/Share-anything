@@ -1,243 +1,197 @@
-const socket = io('https://share-anything.onrender.com');
+// Add DOMPurify script in your HTML first: <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.5/purify.min.js"></script>
 
-socket.on('connect_error', (err) => {
-  console.error('Connection Error:', err);
-  alert('Failed to connect to real-time server. Some features might not work.');
+const socket = io('https://share-anything.onrender.com', {
+  reconnection: true,
+  reconnectionAttempts: 5,
+  reconnectionDelay: 3000
 });
 
-const purify = DOMPurify(window);
-function sanitizeInput(input) {
-  return purify.sanitize(input, { ALLOWED_TAGS: [] });
-}
-
-// Modify your text form submission handler to include sanitization
-const textForm = document.getElementById('textForm');
-textForm.addEventListener('submit', (e) => {
-  e.preventDefault();
-  const input = document.getElementById('textInput');
-  const text = sanitizeInput(input.value.trim()); // Sanitize input
-
-  if (text && currentRoom) {
-    socket.emit('shareText', { text, roomName: currentRoom });
-    input.value = '';
-  }
-});
-
-// Add file sharing WebSocket integration
-socket.on('fileShared', (data) => {
-  const fileList = document.getElementById('fileList');
-  const li = document.createElement('li');
-  li.innerHTML = `<a href="${data.url}" target="_blank">${data.filename}</a> (${data.fileType})`;
-  fileList.appendChild(li);
-});
-
-// Add this for proper cleanup when leaving the page
-window.addEventListener('beforeunload', () => {
-  if (currentRoom) {
-    socket.emit('leaveRoom', currentRoom);
-  }
-});
-
-
-
-
-
+// Security sanitization
+const sanitizeConfig = { ALLOWED_TAGS: [], ALLOWED_ATTR: [] };
+const sanitizeInput = (input) => DOMPurify.sanitize(input, sanitizeConfig);
 
 let currentRoom = null;
 
-// Handle room form submission
-const roomForm = document.getElementById('roomForm');
-roomForm.addEventListener('submit', (e) => {
+// DOM Elements
+const elements = {
+  roomForm: document.getElementById('roomForm'),
+  roomInput: document.getElementById('roomInput'),
+  roomStatus: document.getElementById('roomStatus'),
+  exitRoomButton: document.getElementById('exitRoomButton'),
+  textForm: document.getElementById('textForm'),
+  textInput: document.getElementById('textInput'),
+  sharedTexts: document.getElementById('sharedTexts'),
+  uploadForm: document.getElementById('uploadForm'),
+  fileInput: document.getElementById('fileInput'),
+  fileList: document.getElementById('fileList'),
+  sendButton: document.getElementById('send-button'),
+  userInput: document.getElementById('user-input'),
+  chatBox: document.getElementById('chat-box'),
+  memberCount: document.getElementById('memberCount')
+};
+
+// WebSocket Handlers
+const socketHandlers = {
+  connect_error: (err) => {
+    console.error('Connection Error:', err);
+    alert('Realtime features unavailable. Please refresh!');
+  },
+  initialRoomTexts: (data) => updateTextList(data.texts),
+  textShared: (data) => addTextToList(data.text),
+  textDeleted: (data) => removeTextFromList(data.text),
+  expiredTextRemoved: (data) => removeTextFromList(data.text),
+  roomMembers: (data) => updateRoomStatus(data),
+  fileShared: (data) => addFileToList(data)
+};
+
+// Event Listeners
+const setupEventListeners = () => {
+  elements.roomForm.addEventListener('submit', handleRoomJoin);
+  elements.exitRoomButton.addEventListener('click', handleRoomExit);
+  elements.textForm.addEventListener('submit', handleTextSubmit);
+  elements.uploadForm.addEventListener('submit', handleFileUpload);
+  elements.sendButton.addEventListener('click', handleChatMessage);
+  window.addEventListener('beforeunload', handlePageUnload);
+};
+
+// Core Functions
+const handleRoomJoin = (e) => {
   e.preventDefault();
-  const roomInput = document.getElementById('roomInput');
-  const roomName = roomInput.value.trim();
+  const roomName = sanitizeInput(elements.roomInput.value.trim());
+  if (!roomName) return;
 
-  if (roomName) {
-    currentRoom = roomName;
-    socket.emit('joinRoom', roomName); // Notify the server
-    document.getElementById('roomStatus').textContent = `You joined room: ${roomName}`;
-    document.getElementById('sharedTexts').innerHTML = ''; // Clear previous texts
-  }
-});
+  currentRoom = roomName;
+  socket.emit('joinRoom', roomName);
+  elements.roomStatus.textContent = `Joined: ${roomName}`;
+  elements.sharedTexts.innerHTML = '';
+};
 
-// Handle exit room
-const exitRoomButton = document.getElementById('exitRoomButton');
-exitRoomButton.addEventListener('click', () => {
-  if (currentRoom) {
-    socket.emit('leaveRoom', currentRoom); // Notify the server about leaving the room
-    document.getElementById('roomStatus').textContent = `You left room: ${currentRoom}`;
-    currentRoom = null;
-    document.getElementById('sharedTexts').innerHTML = ''; // Clear the shared texts
-  } else {
-    document.getElementById('roomStatus').textContent = 'You are not in any room!';
-  }
-});
+const handleRoomExit = () => {
+  if (!currentRoom) return;
+  socket.emit('leaveRoom', currentRoom);
+  elements.roomStatus.textContent = `Left: ${currentRoom}`;
+  currentRoom = null;
+  elements.sharedTexts.innerHTML = '';
+};
 
-// Handle text form submission
-const textForm = document.getElementById('textForm');
-textForm.addEventListener('submit', (e) => {
+const handleTextSubmit = (e) => {
   e.preventDefault();
-  const input = document.getElementById('textInput');
-  const text = input.value.trim();
+  const text = sanitizeInput(elements.textInput.value.trim());
+  if (!text || !currentRoom) return;
 
-  if (text && currentRoom) {
-    socket.emit('shareText', { text, roomName: currentRoom });
-    input.value = '';
-  }
-});
+  socket.emit('shareText', { text, roomName: currentRoom });
+  elements.textInput.value = '';
+};
 
-// Create a list item with text, copy, and delete buttons
-function createListItem(text) {
-  const listItem = document.createElement('li');
-
-  const pre = document.createElement('pre');
-  pre.textContent = text;
-
-  const copyButton = document.createElement('button');
-  copyButton.textContent = 'Copy';
-  copyButton.style.marginLeft = '10px';
-  copyButton.addEventListener('click', () => {
-    navigator.clipboard.writeText(text).then(() => {
-      alert('Text copied to clipboard!');
-    });
-  });
-
-  const deleteButton = document.createElement('button');
-  deleteButton.textContent = 'Delete';
-  deleteButton.style.marginLeft = '10px';
-  deleteButton.addEventListener('click', () => {
-    if (currentRoom) {
-      socket.emit('deleteText', { text, roomName: currentRoom });
-    }
-  });
-
-  listItem.appendChild(pre);
-  listItem.appendChild(copyButton);
-  listItem.appendChild(deleteButton);
-
-  return listItem;
-}
-
-// Add shared texts to the list
-function addSharedTexts(texts) {
-  const textList = document.getElementById('sharedTexts');
-  texts.forEach((item) => {
-    const listItem = createListItem(item.text);
-    textList.appendChild(listItem);
-  });
-}
-
-// Remove a specific text from the list
-function removeTextFromList(text) {
-  const textList = document.getElementById('sharedTexts');
-  const items = textList.querySelectorAll('li');
-
-  items.forEach((item) => {
-    const pre = item.querySelector('pre');
-    if (pre && pre.textContent === text) {
-      textList.removeChild(item);
-    }
-  });
-}
-
-// Socket event listeners
-socket.on('initialRoomTexts', (data) => addSharedTexts(data.texts));
-socket.on('textShared', (data) => {
-  const textList = document.getElementById('sharedTexts');
-  const listItem = createListItem(data.text);
-  textList.appendChild(listItem);
-});
-socket.on('textDeleted', (data) => removeTextFromList(data.text));
-socket.on('expiredTextRemoved', (data) => removeTextFromList(data.text));
-
-// Listen for room members update
-socket.on('roomMembers', (data) => {
-  const { room, members } = data;
-  document.getElementById('roomStatus').textContent = `Room: ${room}`;
-  document.getElementById('memberCount').textContent = `Members online: ${members}`;
-});
-
-document.getElementById('uploadForm').addEventListener('submit', async (e) => {
+const handleFileUpload = async (e) => {
   e.preventDefault();
-  const fileInput = document.getElementById('fileInput');
-  if (!fileInput.files.length) {
-    alert('Please select a file!');
-    return;
-  }
+  if (!elements.fileInput.files.length) return;
 
   const formData = new FormData();
-  formData.append('file', fileInput.files[0]);
+  formData.append('file', elements.fileInput.files[0]);
 
   try {
-    const response = await fetch('/upload', {
-      method: 'POST',
-      body: formData
-    });
-
+    const response = await fetch('/upload', { method: 'POST', body: formData });
     const result = await response.json();
-    if (response.ok) {
-      alert('✅ File uploaded successfully!');
-      loadFiles(); // Refresh file list
-    } else {
-      alert('❌ Upload failed: ' + result.error);
-    }
+    response.ok ? loadFiles() : alert(`Upload failed: ${result.error}`);
   } catch (err) {
     console.error('Upload error:', err);
-    alert('❌ Error uploading file');
+    alert('File upload failed!');
   }
+};
+
+const handleChatMessage = async () => {
+  const message = sanitizeInput(elements.userInput.value.trim());
+  if (!message) return;
+
+  appendMessage(`User: ${message}`);
+  elements.userInput.value = '';
+
+  try {
+    const response = await fetch('/api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message })
+    });
+    const data = await response.json();
+    appendMessage(`AI: ${data.message}`);
+  } catch (error) {
+    console.error('Chat error:', error);
+  }
+};
+
+// Helper Functions
+const createListItem = (text) => {
+  const li = document.createElement('li');
+  li.innerHTML = `
+    <pre>${text}</pre>
+    <button class="copy-btn">Copy</button>
+    <button class="delete-btn">Delete</button>
+  `;
+
+  li.querySelector('.copy-btn').addEventListener('click', () => {
+    navigator.clipboard.writeText(text).then(() => alert('Copied!'));
+  });
+
+  li.querySelector('.delete-btn').addEventListener('click', () => {
+    if (currentRoom) socket.emit('deleteText', { text, roomName: currentRoom });
+  });
+
+  return li;
+};
+
+const updateTextList = (texts) => {
+  elements.sharedTexts.innerHTML = '';
+  texts.forEach(text => elements.sharedTexts.appendChild(createListItem(text)));
+};
+
+const addTextToList = (text) => {
+  elements.sharedTexts.appendChild(createListItem(text));
+};
+
+const removeTextFromList = (targetText) => {
+  [...elements.sharedTexts.children].forEach(li => {
+    if (li.querySelector('pre').textContent === targetText) li.remove();
+  });
+};
+
+const updateRoomStatus = ({ room, members }) => {
+  elements.roomStatus.textContent = `Room: ${room}`;
+  elements.memberCount.textContent = `Online: ${members}`;
+};
+
+const appendMessage = (message) => {
+  const div = document.createElement('div');
+  div.textContent = message;
+  elements.chatBox.appendChild(div);
+  elements.chatBox.scrollTop = elements.chatBox.scrollHeight;
+};
+
+const loadFiles = async () => {
+  try {
+    const response = await fetch('/files');
+    const files = await response.json();
+    elements.fileList.innerHTML = files.map(file => `
+      <li>
+        <a href="${file.url}" target="_blank">${file.filename}</a>
+        <span>(${file.fileType})</span>
+      </li>
+    `).join('');
+  } catch (err) {
+    console.error('File load error:', err);
+  }
+};
+
+const handlePageUnload = () => {
+  if (currentRoom) socket.emit('leaveRoom', currentRoom);
+};
+
+// Initialize
+Object.entries(socketHandlers).forEach(([event, handler]) => {
+  socket.on(event, handler);
 });
 
-// Function to load and display uploaded files
-async function loadFiles() {
-  const fileList = document.getElementById('fileList');
-  fileList.innerHTML = '';
-
-  try {
-    const response = await fetch('/files'); // Fetch file list from server
-    const files = await response.json();
-
-    files.forEach(file => {
-      const li = document.createElement('li');
-      li.innerHTML = `<a href="${file.url}" target="_blank">${file.filename}</a> (${file.fileType})`;
-      fileList.appendChild(li);
-    });
-  } catch (err) {
-    console.error('Error loading files:', err);
-  }
-}
-
-// Load files on page load
-window.onload = loadFiles;
-
-document.getElementById('send-button').addEventListener('click', async () => {
-  const userInput = document.getElementById('user-input').value;
-  if (!userInput) return;
-
-  // Display user message
-  const chatBox = document.getElementById('chat-box');
-  const userMessageDiv = document.createElement('div');
-  userMessageDiv.textContent = `User: ${userInput}`;
-  chatBox.appendChild(userMessageDiv);
-
-  // Clear input field
-  document.getElementById('user-input').value = '';
-
-  // Send message to backend
-  try {
-      const response = await fetch('/api/chat', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ message: userInput }),
-      });
-
-      const data = await response.json();
-      const aiMessageDiv = document.createElement('div');
-      aiMessageDiv.textContent = `AI: ${data.message}`;
-      chatBox.appendChild(aiMessageDiv);
-      
-      // Scroll to the bottom
-      chatBox.scrollTop = chatBox.scrollHeight;
-  } catch (error) {
-      console.error('Error:', error);
-  }
+window.addEventListener('DOMContentLoaded', () => {
+  setupEventListeners();
+  loadFiles();
 });
