@@ -1,8 +1,5 @@
-const socket = io('https://share-anything.onrender.com');{
-  reconnection: true,
-  reconnectionAttempts: 5,
-  reconnectionDelay: 3000
-})
+const socket = io('https://share-anything.onrender.com');
+
 socket.on('connect_error', (err) => {
   console.error('Connection Error:', err);
   alert('Failed to connect to real-time server. Some features might not work.');
