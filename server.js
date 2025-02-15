@@ -112,7 +112,7 @@ app.post('/api/chat', async (req, res) => {
 
   try {
     const response = await axios.post(
-      'https://api-inference.huggingface.co/models/deepseek-ai/DeepSeek-R1',
+      'https://api-inference.huggingface.co/models/deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B',
       { inputs: userMessage },
       {
         headers: {
