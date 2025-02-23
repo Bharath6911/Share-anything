@@ -1,6 +1,6 @@
 self.addEventListener('install', (event) => {
     event.waitUntil(
-        caches.open('cinenest-cache-v1').then((cache) => {
+        caches.open('Shareanything-cache-v1').then((cache) => {
             return cache.addAll([
                 'index.html',
                 'css.css',
