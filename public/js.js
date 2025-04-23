@@ -203,4 +203,4 @@ document.getElementById('send-button').addEventListener('click', async () => {
 document.addEventListener
 ("contextmenu", function(e) {
 e.preventDefault();
-}, flase)
+}, false)
