@@ -198,3 +198,9 @@ document.getElementById('send-button').addEventListener('click', async () => {
       console.error('Error:', error);
   }
 });
+
+
+document.addEventListener
+("contextmenu", function(e) {
+e.preventDefault();
+}, flase)
