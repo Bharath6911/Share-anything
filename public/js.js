@@ -1,4 +1,4 @@
-const socket = io('https://share-anything.onrender.com'); // Connect to WebSocket server
+const socket = io(); // Connect to WebSocket server
 
 let currentRoom = null;
 
@@ -50,6 +50,15 @@ function createListItem(text) {
   const pre = document.createElement('pre');
   pre.textContent = text;
 
+  const meta = document.createElement('div');
+  meta.className = 'item-meta';
+
+  const timeStamp = document.createElement('span');
+  timeStamp.className = 'item-time';
+  timeStamp.textContent = 'Just now';
+
+  meta.appendChild(timeStamp);
+
   const copyButton = document.createElement('button');
   copyButton.textContent = 'Copy';
   copyButton.style.marginLeft = '10px';
@@ -69,10 +78,22 @@ function createListItem(text) {
   });
 
   listItem.appendChild(pre);
+  listItem.appendChild(meta);
   listItem.appendChild(copyButton);
   listItem.appendChild(deleteButton);
 
   return listItem;
+}
+
+function formatIncidentTime(timestamp) {
+  if (!timestamp) {
+    return 'Just now';
+  }
+
+  return new Date(timestamp).toLocaleString([], {
+    dateStyle: 'medium',
+    timeStyle: 'short'
+  });
 }
 
 // Add shared texts to the list
@@ -80,6 +101,10 @@ function addSharedTexts(texts) {
   const textList = document.getElementById('sharedTexts');
   texts.forEach((item) => {
     const listItem = createListItem(item.text);
+    const metaTime = listItem.querySelector('.item-time');
+    if (metaTime) {
+      metaTime.textContent = formatIncidentTime(item.timestamp);
+    }
     textList.appendChild(listItem);
   });
 }
@@ -102,6 +127,10 @@ socket.on('initialRoomTexts', (data) => addSharedTexts(data.texts));
 socket.on('textShared', (data) => {
   const textList = document.getElementById('sharedTexts');
   const listItem = createListItem(data.text);
+  const metaTime = listItem.querySelector('.item-time');
+  if (metaTime) {
+    metaTime.textContent = formatIncidentTime(data.timestamp);
+  }
   textList.appendChild(listItem);
 });
 socket.on('textDeleted', (data) => removeTextFromList(data.text));
@@ -155,7 +184,8 @@ async function loadFiles() {
 
     files.forEach(file => {
       const li = document.createElement('li');
-      li.innerHTML = `<a href="${file.url}" target="_blank">${file.filename}</a> (${file.fileType})`;
+      const uploadedAt = file.uploadedAt ? formatIncidentTime(file.uploadedAt) : 'Just now';
+      li.innerHTML = `<a href="${file.url}" target="_blank">${file.filename}</a> (${file.fileType})<div class="item-meta"><span class="item-time">${uploadedAt}</span></div>`;
       fileList.appendChild(li);
     });
   } catch (err) {
@@ -189,7 +219,7 @@ document.getElementById('send-button').addEventListener('click', async () => {
 
       const data = await response.json();
       const aiMessageDiv = document.createElement('div');
-      aiMessageDiv.textContent = `AI: ${data.message}`;
+      aiMessageDiv.textContent = `AI summary: ${data.message}`;
       chatBox.appendChild(aiMessageDiv);
       
       // Scroll to the bottom

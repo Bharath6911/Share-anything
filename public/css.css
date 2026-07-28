@@ -1,41 +1,79 @@
 :root {
-  --primary-color: #4361ee;
-  --secondary-color: #3f37c9;
-  --accent-color: #4895ef;
-  --background-color: #f8f9fa;
-  --text-color: #2b2d42;
-  --shadow-color: rgba(0, 0, 0, 0.3);  /* Darker and more intense shadow */
-  --border-radius: 15px;
+  --primary-color: #155eef;
+  --secondary-color: #0f172a;
+  --accent-color: #14b8a6;
+  --background-color: #08111f;
+  --surface-color: rgba(10, 18, 35, 0.86);
+  --text-color: #e5eefc;
+  --muted-text: #93a4bf;
+  --shadow-color: rgba(0, 0, 0, 0.35);
+  --border-radius: 18px;
+}
+
+* {
+  box-sizing: border-box;
 }
 
 body {
   font-family: 'Poppins', sans-serif;
   margin: 0;
   padding: 2rem;
-  background: var(--background-color);
+  background:
+    radial-gradient(circle at top, rgba(20, 184, 166, 0.12), transparent 28%),
+    radial-gradient(circle at right, rgba(21, 94, 239, 0.18), transparent 26%),
+    linear-gradient(180deg, #050b15 0%, #091426 55%, #050b15 100%);
   color: var(--text-color);
   min-height: 100vh;
   line-height: 1.6;
 }
 
-h1 {
-  color: var(--primary-color);
-  font-size: 2.8rem;
-  margin-bottom: 2rem;
+h1, h2 {
+  margin: 0;
+}
+
+h2 {
+  color: #f8fbff;
+  font-size: 1.25rem;
+  margin-bottom: 1rem;
+}
+
+.hero {
+  max-width: 800px;
+  margin: 0 auto 1.5rem;
+  padding: 1rem 0 0.5rem;
+}
+
+.eyebrow {
+  margin: 0 0 0.4rem;
+  color: var(--accent-color);
+  font-size: 0.82rem;
   text-transform: uppercase;
-  letter-spacing: 1px;
-  text-shadow: 3px 3px 10px rgba(0, 0, 0, 0.2); /* Stronger text shadow */
-  animation: fadeInDown 0.8s ease-out;
+  letter-spacing: 0.18em;
+}
+
+h1 {
+  color: #f5f9ff;
+  font-size: clamp(2.3rem, 5vw, 4rem);
+  letter-spacing: -0.04em;
+  margin-bottom: 0.5rem;
+}
+
+.subtitle {
+  max-width: 62ch;
+  color: var(--muted-text);
+  margin: 0;
 }
 
 #roomInfo, form, #shared-content, #chat-container {
-  background: white;
+  background: var(--surface-color);
   border-radius: var(--border-radius);
-  box-shadow: 0 8px 20px var(--shadow-color), 0 2px 10px rgba(0, 0, 0, 0.1); /* Multi-layer shadows */
-  margin: 2rem auto;
+  border: 1px solid rgba(148, 163, 184, 0.14);
+  box-shadow: 0 18px 50px var(--shadow-color);
+  margin: 1rem auto;
   padding: 1.5rem 2rem;
   max-width: 800px;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
+  backdrop-filter: blur(16px);
 }
 
 #roomInfo {
@@ -55,71 +93,86 @@ input[type="text"], input[type="file"], textarea {
   width: 100%;
   padding: 14px 20px;
   margin: 8px 0;
-  border: 2px solid #e0e0e0;
+  border: 1px solid rgba(148, 163, 184, 0.22);
   border-radius: var(--border-radius);
   font-size: 1rem;
   transition: all 0.3s ease;
-  background-color: #fafafa;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+  background-color: rgba(8, 17, 31, 0.9);
+  color: var(--text-color);
 }
 
 input[type="text"]:focus, textarea:focus {
   border-color: var(--primary-color);
-  box-shadow: 0 0 15px rgba(67, 97, 238, 0.4); /* Glow effect on focus */
+  box-shadow: 0 0 0 3px rgba(21, 94, 239, 0.25);
   outline: none;
 }
 
 button {
-  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+  background: linear-gradient(135deg, var(--primary-color), #0f4dd6);
+  color: white;
   padding: 14px 30px;
   border-radius: var(--border-radius);
   font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 1.2px;
+  letter-spacing: 0.06em;
   transition: all 0.3s ease;
   border: none;
   cursor: pointer;
-  box-shadow: 0 8px 20px var(--shadow-color), 0 2px 8px rgba(0, 0, 0, 0.1); /* Multi-layer shadow for buttons */
+  box-shadow: 0 8px 20px var(--shadow-color);
 }
 
 button:hover {
   transform: translateY(-2px);
-  box-shadow: 0 12px 30px var(--shadow-color), 0 4px 15px rgba(0, 0, 0, 0.2); /* More elevated shadow on hover */
+  box-shadow: 0 12px 30px var(--shadow-color);
 }
 
 #sharedTexts li {
   padding: 12px;
   border-radius: var(--border-radius);
   margin: 8px 0;
-  background: #f0f4ff;
+  background: rgba(15, 23, 42, 0.9);
   transition: background-color 0.3s ease, transform 0.3s ease;
   animation: fadeIn 0.5s ease-out;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* Light shadow for list items */
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.16);
+}
+
+#fileList li {
+  padding: 12px;
+  border-radius: var(--border-radius);
+  margin: 8px 0;
+  background: rgba(15, 23, 42, 0.9);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.16);
+}
+
+.item-meta {
+  margin-top: 0.55rem;
+  font-size: 0.84rem;
+  color: var(--muted-text);
+}
+
+.item-time {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
 }
 
 #sharedTexts li:hover {
   transform: translateX(10px);
-  background: #e0eaff;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1); /* Highlight shadow on hover */
+  background: rgba(21, 94, 239, 0.16);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.18);
 }
 
 #chat-container {
-  background: white;
-  border-radius: var(--border-radius);
-  box-shadow: 0 8px 20px var(--shadow-color), 0 2px 10px rgba(0, 0, 0, 0.1); /* Multi-layer shadow */
-  padding: 1.5rem;
-  margin: 2rem auto;
-  max-width: 600px;
+  margin-bottom: 3rem;
 }
 
 #chat-box {
   height: 300px;
   overflow-y: auto;
   padding: 1rem;
-  background: #fafafa;
+  background: rgba(4, 9, 18, 0.82);
   border-radius: var(--border-radius);
   margin-bottom: 1rem;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* Subtle shadow around chat box */
+  border: 1px solid rgba(148, 163, 184, 0.14);
 }
 
 .message {
@@ -131,7 +184,7 @@ button:hover {
   max-width: 80%;
   animation: slideInRight 0.3s ease-out;
   transition: all 0.3s ease;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1); /* Shadow around messages */
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
 }
 
 .message:hover {
@@ -210,15 +263,15 @@ button:hover {
 }
 
 #exitRoomButton {
-  background: linear-gradient(135deg, #ff4d4d, #c70039);
+  background: linear-gradient(135deg, #ef4444, #b91c1c);
   margin-left: 1rem;
   transition: transform 0.3s ease;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* Shadow for exit button */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 #exitRoomButton:hover {
   transform: scale(1.05);
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2); /* Stronger shadow on hover */
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
 }
 
 @media (max-width: 768px) {

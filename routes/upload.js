@@ -14,26 +14,44 @@ const storage = new CloudinaryStorage({
   cloudinary: cloudinary,
   params: {
     folder: 'uploads',
-    allowed_formats: ['jpg', 'png', 'mp3', 'mp4', 'pdf']
+    allowed_formats: ['jpg', 'jpeg', 'png', 'gif', 'mp3', 'mp4', 'pdf', 'txt', 'log', 'json']
   }
 });
 
-const upload = multer({ storage });
+const hasCloudinaryCredentials = Boolean(
+  process.env.CLOUDINARY_CLOUD_NAME &&
+  process.env.CLOUDINARY_API_KEY &&
+  process.env.CLOUDINARY_API_SECRET
+);
+
+const upload = hasCloudinaryCredentials ? multer({ storage }) : null;
 
 const router = express.Router();
 
-router.post('/', upload.single('file'), async (req, res) => {
-  try {
-    const file = new File({ 
-      filename: req.file.filename, 
-      url: req.file.path,
-      fileType: req.file.mimetype
+router.post('/', async (req, res, next) => {
+  if (!upload) {
+    return res.status(503).json({
+      error: 'Cloudinary credentials are not configured in this environment.',
     });
-    await file.save();
-    res.json({ message: '✅ File uploaded successfully', file });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
   }
+
+  upload.single('file')(req, res, async (err) => {
+    if (err) {
+      return next(err);
+    }
+
+    try {
+      const file = new File({ 
+        filename: req.file.filename, 
+        url: req.file.path,
+        fileType: req.file.mimetype
+      });
+      await file.save();
+      res.json({ message: '✅ File uploaded successfully', file });
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  });
 });
 
 module.exports = router;

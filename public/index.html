@@ -3,59 +3,60 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Real-Time Sharing</title>
+  <title>Incident Room</title>
   <link rel="stylesheet" href="css.css">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link rel="icon" type="image/png" href="Share.png" >
 </head>
 <body>
-  <center><h1>Real-Time Sharing</h1>
-
-  <p>Hello you can get source code of this website=><a href="https://github.com/Bharath6911/Share-anything"><b>HERE</b></a></p>
-  </center>
+  <header class="hero">
+    <p class="eyebrow">CIS multicloud incident collaboration</p>
+    <h1>Incident Room</h1>
+    <p class="subtitle">Join a room, share updates, upload logs or screenshots, and keep every incident note in one place.</p>
+  </header>
 
   <div id="roomInfo">
-  <p id="roomStatus">Not in any room</p>
+  <p id="roomStatus">Not in any incident room</p>
   <p id="memberCount">Members online: 0</p>
   </div>
 
   <form id="roomForm">
-    <input type="text" id="roomInput" placeholder="Enter room name..." required>
-    <button type="submit">Join Room</button>
-    <button type="button" id="exitRoomButton">Exit Room</button>
+    <input type="text" id="roomInput" placeholder="Enter incident room name..." required>
+    <button type="submit">Join Incident</button>
+    <button type="button" id="exitRoomButton">Leave Room</button>
   </form>
 
   <form id="textForm">
-    <textarea id="textInput" placeholder="Type your text here..." required></textarea>
-    <button type="submit">Share Text</button>
+    <textarea id="textInput" placeholder="Paste an update, log snippet, link, or handoff note..." required></textarea>
+    <button type="submit">Post Update</button>
   </form>
 
   <section id="shared-content">
-    <h2>Shared Texts</h2>
+    <h2>Incident Timeline</h2>
     <ul id="sharedTexts">
       <!-- Shared texts will appear here dynamically -->
     </ul>
   </section>
 
   <form id="uploadForm">
-    <input type="file" id="fileInput" accept=".jpg,.jpeg,.png,.gif,.mp4,.pdf,.mp3,.json" required>
-    <button type="submit">Upload</button>
+    <input type="file" id="fileInput" accept=".jpg,.jpeg,.png,.gif,.mp4,.pdf,.mp3,.txt,.log,.json" required>
+    <button type="submit">Upload Evidence</button>
   </form>
 
   <section id="shared-content">
-  <h2>Uploaded Files</h2>
+  <h2>Shared Files</h2>
   <ul id="fileList"></ul>
   </section> 
 
-  <script src="https://share-anything.onrender.com/socket.io/socket.io.js"></script>
+  <script src="/socket.io/socket.io.js"></script>
   <script src="js.js" defer></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.5/purify.min.js"></script>
 
   <div id="chat-container">
     <div id="chat-box"></div>
-    <input type="text" id="user-input" placeholder="Type your message here..." />
-    <button id="send-button">Send</button>
+    <input type="text" id="user-input" placeholder="Ask for a quick incident summary..." />
+    <button id="send-button">Summarize</button>
   </div>
   
 </body>

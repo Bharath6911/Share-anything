@@ -1,33 +1,33 @@
-# **Share-Anything**
+# **Incident Room**
 
-**Live demonstration:** [Go to Share-Anything](https://share-anything.onrender.com/)
+**Live demonstration:** [Go to Incident Room](https://share-anything.onrender.com/)
 
 ---
 
 ## **About the Project**
 
-Share-Anything is a simple and efficient web service designed to facilitate seamless sharing of files, texts, and other content. The service is hosted on Render.com, chosen for its affordability, user-friendly interface, and free-tier hosting capabilities.
+Incident Room is a lightweight collaboration tool for cloud and operations teams. It keeps one incident in one room so logs, screenshots, short updates, and handoff notes stay grouped together.
 
-The project leverages **Node.js** for the back-end to handle communication and data management, enabling real-time sharing of content across multiple browsers in the same room.
+The project leverages **Node.js** for the back-end, **Socket.IO** for real-time room updates, and free-tier cloud services so it stays useful without a paid stack.
 
 ---
 
 ## **Features**
 
 ### **Room-Based Communication:**
-- Users can join specific rooms and share content with up to 10 people simultaneously.
-- Real-time updates and interactions with other members in the same room.
+- Users join a named incident room and coordinate in real time.
+- Real-time updates keep everyone aligned on the same incident timeline.
 
 ### **File Upload and Sharing:**
-- Upload and share files such as images, documents, and other media with integrated support for **Cloudinary** to store and serve files.
-- Support for **Multer** for file handling in the back-end.
+- Upload logs, screenshots, PDFs, and other incident evidence with **Cloudinary**.
+- Support for **Multer** and **multer-storage-cloudinary** in the back-end.
 
 ### **Text Sharing and Management:**
-- Share and manage texts within rooms with options to copy, delete, or view them.
-- Real-time updates to show new texts and deletions as they happen.
+- Share and manage incident updates with copy and delete actions.
+- Real-time updates show new notes and deletions as they happen.
 
 ### **User-Friendly Interface:**
-- Designed with a simple and easy-to-use interface, allowing users to quickly engage in communication and content sharing.
+- Designed with a clean incident-response workflow so it feels closer to a real cloud-ops tool.
 
 ---
 
@@ -44,11 +44,11 @@ The project leverages **Node.js** for the back-end to handle communication and d
 
 ## **Why We Built This**
 
-This project was created as a learning experience to understand:
+This project was created to explore:
 
-1. **Communication Protocols:** How data is transferred efficiently between users in real time using WebSockets.
-2. **Static Web Integration:** How static web pages can be seamlessly combined with Node.js modules for back-end functionality.
-3. **Cloud Storage Integration:** How Cloudinary and Multer can be used for managing and serving files uploaded by users.
+1. **Incident collaboration:** How teams can coordinate around one room during outages or handoffs.
+2. **Real-time communication:** How WebSockets can keep room state synchronized.
+3. **Free-tier cloud integration:** How Cloudinary, MongoDB Atlas, Render, and Hugging Face can power a useful demo without paid infrastructure.
 
 ---
 
@@ -87,9 +87,10 @@ The app will be running locally at `http://localhost:3000`.
 
 ## **Future Improvements**
 
-- **Scalability:** Improve room handling to support more than 10 users in a room.
-- **Authentication:** Implement user authentication for better control over file and text sharing.
-- **File Type Support:** Add support for more file types beyond images (e.g., audio, video).
+- **Incident summaries:** Auto-generate a short summary when the room closes.
+- **Better room lifecycle:** Add archived incidents and search.
+- **Authentication:** Add lightweight sign-in for private incident rooms.
+- **File handling:** Add cleaner previews for screenshots and logs.
 
 ---
 
